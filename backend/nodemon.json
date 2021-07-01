@@ -1,0 +1,6 @@
+{
+  "ignore": [".git", "build", "node_modules"],
+  "watch": ["src"],
+  "exec": "node src/app.js",
+  "delay": 200
+}
