@@ -12,7 +12,7 @@
 
 #include <nil/crypto3/zk/components/blueprint.hpp>
 #include <nil/crypto3/zk/components/blueprint_variable.hpp>
-// #include <nil/crypto3/zk/snark/components/basic_components.hpp>
+#include <nil/crypto3/zk/components/comparison.hpp>
 
 #include <nil/crypto3/zk/snark/schemes/ppzksnark/r1cs_gg_ppzksnark.hpp>
 #include <nil/crypto3/zk/snark/schemes/ppzksnark/r1cs_gg_ppzksnark/marshalling.hpp>
@@ -22,6 +22,7 @@
 #include <nil/crypto3/zk/snark/algorithms/prove.hpp>
 
 using namespace nil::crypto3;
+using namespace nil::crypto3::zk;
 
 typedef algebra::curves::bls12<381> curve_type;
 typedef curve_type::scalar_field_type field_type;
@@ -32,7 +33,7 @@ typedef zk::snark::r1cs_gg_ppzksnark<curve_type> scheme_type;
 void pack_verifier_data(
     scheme_type::keypair_type keypair,
     scheme_type::proof_type proof,
-    r1cs_primary_input<field_type> primary_input) {
+    snark::r1cs_primary_input<field_type> primary_input) {
 
     boost::filesystem::path pout = "proof";
     std::vector<std::uint8_t> byteblob;
@@ -55,18 +56,18 @@ void pack_verifier_data(
     poutf.close();
 }
 
-blueprint<field_type> get_fisherman_blueprint() {
-    blueprint<field_type> bp;
+components::blueprint<field_type> get_fisherman_blueprint() {
+    components::blueprint<field_type> bp;
 
-    blueprint_variable<field_type> latitudeRange0, latitudeRange1;
-    blueprint_variable<field_type> longitudeRange0, longitudeRange1;
-    blueprint_variable<field_type> out;
-    blueprint_variable<field_type> fishingLocation0, fishingLocation1;
+    components::blueprint_variable<field_type> latitudeRange0, latitudeRange1;
+    components::blueprint_variable<field_type> longitudeRange0, longitudeRange1;
+    components::blueprint_variable<field_type> out;
+    components::blueprint_variable<field_type> fishingLocation0, fishingLocation1;
 
-    blueprint_variable<field_type> lessOne, lessOrEqOne;
-    blueprint_variable<field_type> lessTwo, lessOrEqTwo;
-    blueprint_variable<field_type> lessThree, lessOrEqThree;
-    blueprint_variable<field_type> lessFour, lessOrEqFour;
+    components::blueprint_variable<field_type> lessOne, lessOrEqOne;
+    components::blueprint_variable<field_type> lessTwo, lessOrEqTwo;
+    components::blueprint_variable<field_type> lessThree, lessOrEqThree;
+    components::blueprint_variable<field_type> lessFour, lessOrEqFour;
 
     latitudeRange0.allocate(bp);
     latitudeRange1.allocate(bp);
@@ -84,23 +85,23 @@ blueprint<field_type> get_fisherman_blueprint() {
     const size_t n = 10;
 
     // generate_r1cs_constraints
-    components::comparison_component<field_type> cmpOne(bp, n, latitudeRange0, fishingLocation0, lessOne, lessOrEqOne);
+    components::comparison<field_type> cmpOne(bp, n, latitudeRange0, fishingLocation0, lessOne, lessOrEqOne);
     cmpOne.generate_r1cs_constraints();
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(lessOne, 1, field_type::value_type::one()));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(lessOne, 1, field_type::value_type::one()));
 
-    components::comparison_component<field_type> cmpTwo(bp, n, fishingLocation0, latitudeRange1, lessTwo, lessOrEqTwo);
+    components::comparison<field_type> cmpTwo(bp, n, fishingLocation0, latitudeRange1, lessTwo, lessOrEqTwo);
     cmpTwo.generate_r1cs_constraints();
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(lessTwo, 1, field_type::value_type::one()));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(lessTwo, 1, field_type::value_type::one()));
 
-    components::comparison_component<field_type> cmpThree(bp, n, fishingLocation0, latitudeRange1, lessThree, lessOrEqThree);
+    components::comparison<field_type> cmpThree(bp, n, fishingLocation0, latitudeRange1, lessThree, lessOrEqThree);
     cmpThree.generate_r1cs_constraints();
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(lessThree, 1, field_type::value_type::one()));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(lessThree, 1, field_type::value_type::one()));
 
-    components::comparison_component<field_type> cmpFour(bp, n, fishingLocation0, latitudeRange1, lessFour, lessOrEqFour);
+    components::comparison<field_type> cmpFour(bp, n, fishingLocation0, latitudeRange1, lessFour, lessOrEqFour);
     cmpFour.generate_r1cs_constraints();
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(lessFour, 1, field_type::value_type::one()));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(lessFour, 1, field_type::value_type::one()));
 
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>((lessOne + lessTwo + lessThree + lessFour), 1, out));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>((lessOne + lessTwo + lessThree + lessFour), 1, out));
 
 
     // generate_r1cs_witness
@@ -122,18 +123,18 @@ blueprint<field_type> get_fisherman_blueprint() {
     return bp;
 }
 
-blueprint<field_type> get_blueprint(std::size_t a, std::size_t b) {
+components::blueprint<field_type> get_blueprint(std::size_t a, std::size_t b) {
     const size_t n = 5;
 
-    blueprint<field_type> bp;
+    components::blueprint<field_type> bp;
 
-    blueprint_variable<field_type> A, B, less, less_or_eq;
+    components::blueprint_variable<field_type> A, B, less, less_or_eq;
     A.allocate(bp);
     B.allocate(bp);
     less.allocate(bp);
     less_or_eq.allocate(bp);
 
-    components::comparison_component<field_type> cmp(bp, n, A, B, less, less_or_eq);
+    components::comparison<field_type> cmp(bp, n, A, B, less, less_or_eq);
     cmp.generate_r1cs_constraints();
 
     // const std::size_t a = 3;
@@ -156,17 +157,17 @@ blueprint<field_type> get_blueprint(std::size_t a, std::size_t b) {
     return bp;
 }
 
-blueprint<field_type> get_example_blueprint() {
+components::blueprint<field_type> get_example_blueprint() {
 
     // Create blueprint
-    blueprint<field_type> bp;
+    components::blueprint<field_type> bp;
 
     // Define variables
-    blueprint_variable<field_type> x;
-    blueprint_variable<field_type> sym_1;
-    blueprint_variable<field_type> y;
-    blueprint_variable<field_type> sym_2;
-    blueprint_variable<field_type> out;
+    components::blueprint_variable<field_type> x;
+    components::blueprint_variable<field_type> sym_1;
+    components::blueprint_variable<field_type> y;
+    components::blueprint_variable<field_type> sym_2;
+    components::blueprint_variable<field_type> out;
 
 
   // Allocate variables to blueprint
@@ -185,16 +186,16 @@ blueprint<field_type> get_example_blueprint() {
     // Add R1CS constraints to blueprint:
 
     // x*x = sym_1
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(x, x, sym_1));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(x, x, sym_1));
 
     // sym_1 * x = y
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(sym_1, x, y));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(sym_1, x, y));
 
     // y + x = sym_2
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(y + x, 1, sym_2));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(y + x, 1, sym_2));
 
     // sym_2 + 5 = ~out
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(sym_2 + 5, 1, out));
+    bp.add_r1cs_constraint(snark::r1cs_constraint<field_type>(sym_2 + 5, 1, out));
 
 
     // Add witness values
@@ -222,12 +223,12 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Getting blueprint..." << std::endl;
 
-    // blueprint<field_type> bp = get_blueprint(a, b);
-    blueprint<field_type> bp = get_fisherman_blueprint();
+    // components::blueprint<field_type> bp = get_blueprint(a, b);
+    components::blueprint<field_type> bp = get_fisherman_blueprint();
 
     std::cout << "Generating constraint system..." << std::endl;
 
-    const r1cs_constraint_system<field_type> constraint_system = bp.get_constraint_system();
+    const snark::r1cs_constraint_system<field_type> constraint_system = bp.get_constraint_system();
 
     // std::cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << std::endl;
     // std::cout << "Primary (public) input: " << bp.primary_input() << std::endl;
@@ -240,10 +241,10 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Generating proof..." << std::endl;
 
-    const scheme_type::proof_type proof = prove<scheme_type>(keypair.first, bp.primary_input(), bp.auxiliary_input());
+    const scheme_type::proof_type proof = snark::prove<scheme_type>(keypair.first, bp.primary_input(), bp.auxiliary_input());
 
-    using basic_proof_system = r1cs_gg_ppzksnark<curve_type>;
-    const bool verified = verify<basic_proof_system>(keypair.second, bp.primary_input(), proof);
+    using basic_proof_system = snark::r1cs_gg_ppzksnark<curve_type>;
+    const bool verified = snark::verify<basic_proof_system>(keypair.second, bp.primary_input(), proof);
 
     std::cout << "Verification status: " << verified << std::endl;
 
