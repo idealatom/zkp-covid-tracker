@@ -37,3 +37,6 @@
 [submodule "zkp/libs/marshalling"]
 	path = zkp/libs/marshalling
 	url = git@github.com:NilFoundation/marshalling.git
+[submodule "zkp/cmake/modules"]
+	path = zkp/cmake/modules
+	url = git@github.com:BoostCMake/cmake_modules.git
