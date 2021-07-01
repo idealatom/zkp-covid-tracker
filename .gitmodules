@@ -1,0 +1,39 @@
+[submodule "zkp/libs/multiprecision"]
+	path = zkp/libs/multiprecision
+	url = git@github.com:nilfoundation/crypto3-multiprecision.git
+[submodule "zkp/libs/algebra"]
+	path = zkp/libs/algebra
+	url = git@github.com:nilfoundation/crypto3-algebra.git
+[submodule "zkp/libs/zk"]
+	path = zkp/libs/zk
+	url = git@github.com:nilfoundation/crypto3-zk.git
+[submodule "zkp/libs/blueprint"]
+	path = zkp/libs/blueprint
+	url = git@github.com:nilfoundation/crypto3-blueprint.git
+[submodule "zkp/libs/fft"]
+	path = zkp/libs/fft
+	url = git@github.com:nilfoundation/crypto3-fft.git
+[submodule "zkp/libs/block"]
+	path = zkp/libs/block
+	url = git@github.com:nilfoundation/crypto3-block.git
+[submodule "zkp/libs/hash"]
+	path = zkp/libs/hash
+	url = git@github.com:nilfoundation/crypto3-hash
+[submodule "zkp/libs/random"]
+	path = zkp/libs/random
+	url = git@github.com:nilfoundation/crypto3-random.git
+[submodule "zkp/libs/mac"]
+	path = zkp/libs/mac
+	url = git@github.com:nilfoundation/crypto3-mac.git
+[submodule "zkp/libs/modes"]
+	path = zkp/libs/modes
+	url = git@github.com:nilfoundation/crypto3-modes.git
+[submodule "zkp/libs/stream"]
+	path = zkp/libs/stream
+	url = git@github.com:nilfoundation/crypto3-stream.git
+[submodule "zkp/libs/codec"]
+	path = zkp/libs/codec
+	url = git@github.com:NilFoundation/crypto3-codec.git
+[submodule "zkp/libs/marshalling"]
+	path = zkp/libs/marshalling
+	url = git@github.com:NilFoundation/marshalling.git
