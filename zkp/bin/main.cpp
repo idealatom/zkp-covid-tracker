@@ -23,8 +23,6 @@
 
 using namespace std;
 
-using namespace nil::crypto3;
-using namespace nil::crypto3::zk;
 using namespace nil::crypto3::zk::components;
 using namespace nil::crypto3::zk::snark;
 
@@ -35,11 +33,11 @@ typedef zk::snark::r1cs_gg_ppzksnark<curve_type> scheme_type;
 
 
 void pack_verifier_data(
+    boost::filesystem::path pout,
     scheme_type::keypair_type keypair,
     scheme_type::proof_type proof,
     r1cs_primary_input<field_type> primary_input) {
 
-    boost::filesystem::path pout = "proof";
     vector<uint8_t> byteblob;
 
     vector<uint8_t> verification_key_byteblob = nil::marshalling::verifier_input_serializer_tvm<scheme_type>::process(
@@ -60,7 +58,7 @@ void pack_verifier_data(
     poutf.close();
 }
 
-blueprint<field_type> get_fisherman_blueprint() {
+blueprint<field_type> get_blueprint() {
     blueprint<field_type> bp;
 
     blueprint_variable<field_type> latitudeRange0, latitudeRange1;
@@ -127,92 +125,6 @@ blueprint<field_type> get_fisherman_blueprint() {
     return bp;
 }
 
-blueprint<field_type> get_blueprint(size_t a, size_t b) {
-    const size_t n = 5;
-
-    blueprint<field_type> bp;
-
-    blueprint_variable<field_type> A, B, less, less_or_eq;
-    A.allocate(bp);
-    B.allocate(bp);
-    less.allocate(bp);
-    less_or_eq.allocate(bp);
-
-    comparison<field_type> cmp(bp, n, A, B, less, less_or_eq);
-    cmp.generate_r1cs_constraints();
-
-    // const size_t a = 3;
-    // const size_t b = 1;
-
-    bp.val(A) = field_type::value_type(a);
-    bp.val(B) = field_type::value_type(b);
-
-    cmp.generate_r1cs_witness();
-
-    const bool _less = bp.val(less) == field_type::value_type::one() ? true : false;
-    const bool _less_or_eq = bp.val(less_or_eq) == field_type::value_type::one() ? true : false;
-
-    cout << "A: " << a << endl;
-    cout << "B: " << b << endl;
-    cout << "LESS: " << _less << endl;
-    cout << "LESS OR EQ: " << _less_or_eq << endl;
-    cout << "Blueprint is satisfied: " << bp.is_satisfied() << endl;
-
-    return bp;
-}
-
-blueprint<field_type> get_example_blueprint() {
-
-    // Create blueprint
-    blueprint<field_type> bp;
-
-    // Define variables
-    blueprint_variable<field_type> x;
-    blueprint_variable<field_type> sym_1;
-    blueprint_variable<field_type> y;
-    blueprint_variable<field_type> sym_2;
-    blueprint_variable<field_type> out;
-
-
-  // Allocate variables to blueprint
-  // The strings (like "x") are only for debugging purposes
-    out.allocate(bp);
-    x.allocate(bp);
-    sym_1.allocate(bp);
-    y.allocate(bp);
-    sym_2.allocate(bp);
-
-    // This sets up the blueprint variables
-    // so that the first one (out) represents the public
-    // input and the rest is private input
-    bp.set_input_sizes(1);
-
-    // Add R1CS constraints to blueprint:
-
-    // x*x = sym_1
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(x, x, sym_1));
-
-    // sym_1 * x = y
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(sym_1, x, y));
-
-    // y + x = sym_2
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(y + x, 1, sym_2));
-
-    // sym_2 + 5 = ~out
-    bp.add_r1cs_constraint(r1cs_constraint<field_type>(sym_2 + 5, 1, out));
-
-
-    // Add witness values
-
-    bp.val(x) = 3;
-    bp.val(out) = 35;
-    bp.val(sym_1) = 9;
-    bp.val(y) = 27;
-    bp.val(sym_2) = 30;
-
-    return bp;
-}
-
 int main(int argc, char *argv[]) {
     size_t a, b;
 
@@ -226,36 +138,23 @@ int main(int argc, char *argv[]) {
     boost::program_options::notify(vm);
 
     cout << "Getting blueprint..." << endl;
-
-    // blueprint<field_type> bp = get_blueprint(a, b);
-    blueprint<field_type> bp = get_fisherman_blueprint();
+    blueprint<field_type> bp = get_blueprint();
 
     cout << "Generating constraint system..." << endl;
-
     const r1cs_constraint_system<field_type> constraint_system = bp.get_constraint_system();
 
-    // cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
-    // cout << "Primary (public) input: " << bp.primary_input() << endl;
-    // cout << "Auxiliary (private) input: " << bp.auxiliary_input() << endl;
-
     cout << "Generating keypair..." << endl;
-
     scheme_type::keypair_type keypair = generate<scheme_type>(constraint_system);
 
-
     cout << "Generating proof..." << endl;
-
     const scheme_type::proof_type proof = prove<scheme_type>(keypair.first, bp.primary_input(), bp.auxiliary_input());
 
     using basic_proof_system = r1cs_gg_ppzksnark<curve_type>;
     const bool verified = verify<basic_proof_system>(keypair.second, bp.primary_input(), proof);
-
     cout << "Verification status: " << verified << endl;
 
-
     cout << "Packing verifier data..." << endl;
-
-    pack_verifier_data(keypair, proof, bp.primary_input());
+    pack_verifier_data("proof", keypair, proof, bp.primary_input());
 
     return 0;
 }
