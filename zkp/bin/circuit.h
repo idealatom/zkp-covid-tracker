@@ -37,6 +37,15 @@ class LocationCircuit {
         userX.allocate(bp);
         userY.allocate(bp);
 
+        less1.allocate(bp);
+        lessOrEq1.allocate(bp);
+        less2.allocate(bp);
+        lessOrEq2.allocate(bp);
+        less3.allocate(bp);
+        lessOrEq3.allocate(bp);
+        less4.allocate(bp);
+        lessOrEq4.allocate(bp);
+
         bp.set_input_sizes(5);
     }
 
