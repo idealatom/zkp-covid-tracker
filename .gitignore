@@ -1,2 +1,16 @@
+# zkp
 zkp/build/*
+
+# backend
 backend/node_modules
+
+# frontend
+frontend/node_modules
+frontend/.env.development
+frontend/.env.production
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# misc
+.DS_Store
