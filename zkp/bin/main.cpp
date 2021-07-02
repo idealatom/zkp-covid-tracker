@@ -48,28 +48,33 @@ void pack_verifier_data(
     poutf.close();
 }
 
-blueprint<field_type> get_blueprint() {
+blueprint<field_type> get_blueprint(std::size_t x, std::size_t y) {
     blueprint<field_type> bp;
     LocationCircuit circuit(bp);
     circuit.generate_r1cs_constraints(bp);
-    circuit.generate_r1cs_witness(bp);
+    circuit.generate_r1cs_witness(bp, x, y);
+
+    cout << "X = " << x << endl;
+    cout << "Y = " << y << endl;
+    cout << "Blueprint is satisfied: " << bp.is_satisfied() << endl;
+
     return bp;
 }
 
 int main(int argc, char *argv[]) {
-    // size_t a, b;
+    size_t x, y;
 
-    // boost::program_options::options_description options("CLI Proof Generator");
-    // options.add_options()
-    // ("a,a", boost::program_options::value<size_t>(&a)->default_value(10))
-    // ("b,b", boost::program_options::value<size_t>(&b)->default_value(10));
+    boost::program_options::options_description options("CLI Proof Generator");
+    options.add_options()
+    ("x,x", boost::program_options::value<size_t>(&x)->default_value(0))
+    ("y,y", boost::program_options::value<size_t>(&y)->default_value(0));
 
-    // boost::program_options::variables_map vm;
-    // boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
-    // boost::program_options::notify(vm);
+    boost::program_options::variables_map vm;
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
+    boost::program_options::notify(vm);
 
     cout << "Getting blueprint..." << endl;
-    blueprint<field_type> bp = get_blueprint();
+    blueprint<field_type> bp = get_blueprint(x, y);
 
     cout << "Generating constraint system..." << endl;
     const r1cs_constraint_system<field_type> constraint_system = bp.get_constraint_system();
