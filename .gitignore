@@ -5,6 +5,7 @@ zkp/build/*
 backend/node_modules
 
 # frontend
+frontend/dist
 frontend/node_modules
 frontend/.env.development
 frontend/.env.production
