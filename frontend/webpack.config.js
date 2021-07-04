@@ -6,18 +6,8 @@ const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
-function checkEnvironment(env) {
-  if (env !== "development" && env !== "production") {
-    console.error(
-      "Cannot detect your environment. Possible values are: development, production."
-    );
-    process.exit(1);
-  }
-}
-
-module.exports = (env) => {
-  console.log(env);
-  checkEnvironment(env);
+module.exports = (params) => {
+  const env = params.development ? "development" : "production";
   clear();
   console.log(chalk.greenBright(`Creating ${env} build...\n`));
 
@@ -28,7 +18,7 @@ module.exports = (env) => {
 
   return {
     entry: [sourcePath],
-    node: { fs: "empty", child_process: "empty" },
+    // node: { Buffer: false, process: false },
     devtool: "source-map",
     stats: "none",
 

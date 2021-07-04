@@ -4,19 +4,24 @@
   "author": "idealatom",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --env development --mode development",
+    "start": "webpack serve --env development --mode development --progress",
     "build": "webpack --env development --mode production"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
+    "@react-leaflet/core": "^1.1.0",
     "history": "^5.0.0",
+    "leaflet": "^1.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-leaflet": "^3.2.0",
     "react-router-dom": "^6.0.0-beta.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.5",
+    "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.2.2",
@@ -39,24 +44,12 @@
     "eslint-webpack-plugin": "^2.4.1",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "hard-source-webpack-plugin": "^0.13.1",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^5.3.2",
     "prettier": "^2.0.5",
     "pretty-quick": "^3.1.0",
     "style-loader": "^1.0.0",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.9.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 10",
-    "not op_mini all"
-  ]
+    "webpack": "^5.42.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  }
 }

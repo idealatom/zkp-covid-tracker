@@ -1,13 +1,12 @@
 import React from "react";
 import { Box, Container, Typography } from "@material-ui/core";
+import MapBox from "./MapBox";
 
 function ProofView() {
   return (
     <Container maxWidth="sm">
       <Box my={4}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Proof
-        </Typography>
+        <MapBox />
       </Box>
     </Container>
   );

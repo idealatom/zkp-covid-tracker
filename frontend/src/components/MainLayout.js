@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Button,
@@ -42,21 +42,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MainLayout = () => {
+  const navigate = useNavigate();
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
       <AppBar elevation={0}>
         <Toolbar className={classes.toolbar}>
-          <Typography variant="h6" className={classes.title}>
-            <Link to="/">TRACKER</Link>
+          <Typography variant="h6" color="secondary" className={classes.title}>
+            TRACKER
           </Typography>
-          <Typography variant="h6">
-            <Link to="/proof">PROOF</Link>
-          </Typography>{" "}
-          <Typography variant="h6">
-            <Link to="/verify">VERIFY</Link>
-          </Typography>
+          <Button
+            onClick={() => navigate("/proof", { replace: true })}
+            color="secondary"
+          >
+            PROOF
+          </Button>
+          <Button
+            onClick={() => navigate("/verify", { replace: true })}
+            color="secondary"
+          >
+            VERIFY
+          </Button>
         </Toolbar>
       </AppBar>
       <div className={classes.wrapper}>
