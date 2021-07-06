@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
     boost::program_options::notify(vm);
 
+    cout << setprecision(16);
     cout << "Area: (" << ax << ", " << ay <<  ") radius=" << r << endl;
     cout << "User coords: (" << x << ", " << y <<  ")" << endl;
 

@@ -9,5 +9,6 @@
 
 typedef algebra::curves::bls12<381> curve_type;
 typedef curve_type::scalar_field_type field_type;
+typedef field_type::value_type value_type;
 
 typedef zk::snark::r1cs_gg_ppzksnark<curve_type> scheme_type;
