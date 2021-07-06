@@ -58,7 +58,7 @@ class LocationCircuit {
     }
 
     void generate_r1cs_constraints(blueprint<field_type> &bp) {
-        std::size_t n = 100;
+        std::size_t n = 150;
 
         // (userX - areaX)^2 + (userY - areaY)^2 <= radius^2.
 
