@@ -4,11 +4,29 @@
 
 This is POC project made for TON contest:  [#18 Groth16 zkSNARK Proof Verification Use Cases](https://devex.gov.freeton.org/proposal?proposalAddress=0%3Ae6b65075478e7d412fdb0870452f30dfa8bf51272e28a3167abc5c5df6fd051d)
 
-The idea is to proof that you wasn't in some specific area on the map, without revealing your actual location.
+
+
+We care about privacy and allow to some instances (like goveranace) to be sure, that person wasn't placed in infected by covid-19 area, by generation proof that allows to check, that user out of specifed area.
+
+## Idea
+
+**The idea is to proof that you wasn't in some specific area on the map, without revealing your actual location.**
 
 To do so we made prototype: zkSNARK that accepts your coordinates (as private input) and generates proof that you was in range of `r`  meters form specific area: coordinates.
 
 
+
+
+
+### Steps
+
+1. **Gov** create a solidity contract with snark, that can valide coordinates and get the answer, is the user placed in specifed area
+2. **User** generates proof on his device and send it to the contract
+
+After this:
+
+1. ✅ User can  confirm that he is in safe area
+2. ✅ User location data doesnt' sent outside of his device, so we preserve privacy
 
 ## Assumtions
 
@@ -20,11 +38,23 @@ Then you can run this code on this device to generate proof that owner of this d
 
 
 
-2. We diide to set a radius and coordinates and made a zkSNARK that calculate distance by simple formula:
+2. Let's assume that world is flat - otherwise we have to use [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula) that possible, but not in timeframe of contest :) 
 
-distance = √ a2 + b2 
+3. Personal ID and Time assumtion: we can check on blockchain part to make zksnark simple as poosible. So let's assume that pesonal tracker can log it into smart contract on it's side.
 
 
+
+## Implementation:
+
+
+
+We did a zksnark to set a radius and coordinates and made a zkSNARK that calculate distance by simple formula:
+
+`distance = √ a2 + b2 `
+
+
+
+calculated as follwoing:
 
 ```c++
 				bp.val(deltaX) = bp.val(userX) - bp.val(areaX);
@@ -37,6 +67,57 @@ distance = √ a2 + b2
 
 
 
-3. Let's assume that world is flat - otherwise we have to use [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula) that possible, but not in timeframe of contest :) 
-4. Personal ID and Time assumtion: we can check on blockchain part to make zksnark simple as poosible. So let's assume that pesonal tracker can log it into smart contract on it's side.
-5. 
+## Architecture:
+
+### ZKP (blueprint):
+
+Generates proof by input coordinates
+
+### TON Blockchain (smart contract)
+
+Validates time, id and tin verification for zkp part onchain.
+
+
+
+### Backend
+
+Generates proof for the user (could be packed into portable device in the future)
+
+
+
+### Frontend
+
+Show UI to set location and allows to send it to generate proof
+
+
+
+## How to build:
+
+
+
+### zkp side only
+
+1. Clone:
+
+   `git clone  https://github.com/idealatom/ton-zkp-contest --recurse-submodules`
+
+2. go to zkp directory:
+
+   `cd ton-zkp-contest/zkp && mkdir build && cd build `
+
+3. build
+
+   `cmake .. && make cli`
+   
+4. generate the proof:
+`bin/cli -x 10 -y 0 -r 100 --ax 20 --ay 30`
+
+
+
+### Whole project (with backend and frontend)
+
+
+
+Whole project packed in Docker, so you can simple start it by command:
+
+`//TBD`
