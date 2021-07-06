@@ -47,19 +47,23 @@ const EventLayer = ({ target, area, radius, onClick, onCircleDrag }) => {
   const map = useMapEvents({
     mousemove: (e) => dragging && onCircleDrag(latLngToCoords(e.latlng)),
     mousedown: (e) => setPrevPosition(latLngToCoords(e.latlng)),
-    mouseup: (e) =>
-      (!prevPosition ||
-        sum(diff(prevPosition, latLngToCoords(e.latlng))) < CLICK_THRESHOLD) &&
-      onClick(latLngToCoords(e.latlng)),
+    mouseup: (e) => {
+      const isMapMoved =
+        prevPosition &&
+        sum(diff(prevPosition, latLngToCoords(e.latlng))) > CLICK_THRESHOLD;
+
+      if (!isMapMoved) {
+        onClick(latLngToCoords(e.latlng));
+      }
+
+      map.dragging.enable();
+      setDragging(false);
+    },
   });
   const circleEventHandlers = {
     mousedown: () => {
       map.dragging.disable();
       setDragging(true);
-    },
-    mouseup: () => {
-      map.dragging.enable();
-      setDragging(false);
     },
   };
   return (
