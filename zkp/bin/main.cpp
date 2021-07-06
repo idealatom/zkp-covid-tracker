@@ -21,6 +21,9 @@ using namespace std;
 using namespace nil::crypto3::zk::components;
 using namespace nil::crypto3::zk::snark;
 
+int MAX_RADIUS = 1000;
+int MAX_LATITUDE = 90;
+int MAX_LONGITUDE = 180;
 
 void pack_verifier_data(
     boost::filesystem::path pout,
@@ -59,24 +62,24 @@ blueprint<field_type> get_blueprint(float ax, float ay, float r, float x, float 
 bool validate_inputs(float ax, float ay, float r, float x, float y) {
     // The latitude must be a number between -90 and 90
     // The longitude must be a number between -180 and 180
-    if (abs(ax) > 90) {
-        cout << "Invalid area center latitude" << endl;
+    if (abs(ax) > MAX_LATITUDE) {
+        cout << "Invalid area center latitude. It should be in range [" << -MAX_LATITUDE << ", " << MAX_LATITUDE << "]" << endl;
         return false;
     }
-    if (abs(x) > 90) {
-        cout << "Invalid user latitude" << endl;
+    if (abs(x) > MAX_LATITUDE) {
+        cout << "Invalid user latitude. It should be in range [" << -MAX_LATITUDE << ", " << MAX_LATITUDE << "]" << endl;
         return false;
     }
-    if (abs(ay) > 180) {
-        cout << "Invalid area center longitude" << endl;
+    if (abs(ay) > MAX_LONGITUDE) {
+        cout << "Invalid area center longitude. It should be in range [" << -MAX_LONGITUDE << ", " << MAX_LONGITUDE << "]" << endl;
         return false;
     }
-    if (abs(ay) > 180) {
-        cout << "Invalid user longitude" << endl;
+    if (abs(y) > MAX_LONGITUDE) {
+        cout << "Invalid user longitude. It should be in range [" << -MAX_LONGITUDE << ", " << MAX_LONGITUDE << "]" << endl;
         return false;
     }
-    if (r > 100 || r <= 0) {
-        cout << "Radius should be in a range 0...100" << endl;
+    if (r > MAX_RADIUS || r <= 0) {
+        cout << "Radius should be in a range 0..." << MAX_RADIUS << endl;
         return false;
     }
 
