@@ -1,43 +1,43 @@
-import React from "react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import React from 'react';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Button,
   makeStyles,
   Toolbar,
   Typography,
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.default,
-    display: "flex",
-    height: "100%",
-    overflow: "hidden",
-    width: "100%",
+    display: 'flex',
+    height: '100%',
+    overflow: 'hidden',
+    width: '100%',
   },
   title: {
     flexGrow: 1,
   },
   wrapper: {
-    display: "flex",
-    flex: "1 1 auto",
-    overflow: "hidden",
+    display: 'flex',
+    flex: '1 1 auto',
+    overflow: 'hidden',
     paddingTop: 64,
   },
-  contentContainer: {
-    display: "flex",
-    flex: "1 1 auto",
-    overflow: "hidden",
-  },
-  content: {
-    flex: "1 1 auto",
-    height: "100%",
-    overflow: "auto",
-  },
+  // contentContainer: {
+  //   display: "flex",
+  //   flex: "1 1 auto",
+  //   overflow: "hidden",
+  // },
+  // content: {
+  //   flex: "1 1 auto",
+  //   height: "100%",
+  //   overflow: "auto",
+  // },
   toolbar: {
     height: 64,
-    color: "#aaaaaa",
+    color: '#aaaaaa',
   },
 }));
 
@@ -53,13 +53,13 @@ const MainLayout = () => {
             TRACKER
           </Typography>
           <Button
-            onClick={() => navigate("/proof", { replace: true })}
+            onClick={() => navigate('/proof', { replace: true })}
             color="secondary"
           >
             PROOF
           </Button>
           <Button
-            onClick={() => navigate("/verify", { replace: true })}
+            onClick={() => navigate('/verify', { replace: true })}
             color="secondary"
           >
             VERIFY
@@ -67,11 +67,7 @@ const MainLayout = () => {
         </Toolbar>
       </AppBar>
       <div className={classes.wrapper}>
-        <div className={classes.contentContainer}>
-          <div className={classes.content}>
-            <Outlet />
-          </div>
-        </div>
+        <Outlet />
       </div>
     </div>
   );
