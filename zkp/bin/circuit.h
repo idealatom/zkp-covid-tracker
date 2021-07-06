@@ -15,7 +15,6 @@ float roundoff(float value, uint prec)
 }
 
 int convert_input(float value, uint prec) {
-    // return int(value);
     int pow_10 = pow(10, prec);
     return int(roundoff(value, prec) * pow_10);
 }
@@ -87,13 +86,15 @@ class LocationCircuit {
     }
 
     void generate_r1cs_witness(blueprint<field_type> &bp, float ax, float ay, float r, float x, float y) {
+        // to keep all coordinates positive shift them to (1000, 1000)
+        uint coord_shift = 1000;
         uint precision = 6;
 
-        bp.val(areaX) = convert_input(ax, precision);
-        bp.val(areaY) = convert_input(ay, precision);;
+        bp.val(areaX) = convert_input(ax + coord_shift, precision);
+        bp.val(areaY) = convert_input(ay + coord_shift, precision);;
+        bp.val(userX) = convert_input(x + coord_shift, precision);;
+        bp.val(userY) = convert_input(y + coord_shift, precision);
         bp.val(radius) = convert_input(r, precision);;
-        bp.val(userX) = convert_input(x, precision);;
-        bp.val(userY) = convert_input(y, precision);
 
         bp.val(out) = value_type::one();
 

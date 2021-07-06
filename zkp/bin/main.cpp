@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) {
     ("x,x", boost::program_options::value<float>(&x)->default_value(0))
     ("y,y", boost::program_options::value<float>(&y)->default_value(0))
     ("r,r", boost::program_options::value<float>(&r)->default_value(10))
-    ("a,ax", boost::program_options::value<float>(&ax)->default_value(0))
-    ("b,ay", boost::program_options::value<float>(&ay)->default_value(0));
+    ("a,a", boost::program_options::value<float>(&ax)->default_value(0))
+    ("b,b", boost::program_options::value<float>(&ay)->default_value(0));
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
