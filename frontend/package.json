@@ -13,14 +13,18 @@
     "@react-leaflet/core": "^1.1.0",
     "history": "^5.0.0",
     "leaflet": "^1.7.1",
+    "process": "^0.11.10",
+    "ramda": "^0.27.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-leaflet": "^3.2.0",
-    "react-router-dom": "^6.0.0-beta.0"
+    "react-router-dom": "^6.0.0-beta.0",
+    "react-use": "^17.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.14.5",
     "@babel/preset-env": "^7.14.7",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.3",
@@ -47,7 +51,9 @@
     "html-webpack-plugin": "^5.3.2",
     "prettier": "^2.0.5",
     "pretty-quick": "^3.1.0",
+    "source-map": "^0.7.3",
     "style-loader": "^1.0.0",
+    "tsconfig-paths": "^3.10.1",
     "webpack": "^5.42.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2"

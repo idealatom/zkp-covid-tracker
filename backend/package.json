@@ -12,6 +12,7 @@
   "author": "idealatom",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "nanoid": "^3.1.23",
