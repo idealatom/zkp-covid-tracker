@@ -141,12 +141,12 @@ void setup_keys() {
     cout << "Generating keypair..." << endl;
     scheme_type::keypair_type keypair = generate<scheme_type>(constraint_system);
 
-    cout << "Saving proving key to proving.key" << endl;
+    cout << "Saving proving key to a file" << endl;
     vector<uint8_t> proving_key_byteblob =
         verifier_input_serializer_tvm<scheme_type>::process(keypair.first);
     save_input(proving_key_byteblob, "proving.key");
 
-    cout << "Saving verification key to verification.key" << endl;
+    cout << "Saving verification key to a file" << endl;
     vector<uint8_t> verification_key_byteblob =
         verifier_input_serializer_tvm<scheme_type>::process(keypair.second);
     save_input(verification_key_byteblob, "verification.key");
@@ -154,12 +154,14 @@ void setup_keys() {
 
 void create_proof(float minLat, float maxLat, float minLng, float maxLng, float posLat, float posLng) {
     // load proving key
+    cout << "Loading proving key from a file..." << endl;
     vector<uint8_t> proving_key_byteblob = load_input("proving.key");
     if (!proving_key_byteblob.size()) {
         cout << "Empty proving.key file!" << endl;
         return;
     }
 
+    cout << "Deserialize proving key..." << endl;
     nil::marshalling::status_type processingStatus = nil::marshalling::status_type::success;
     typename scheme_type::proving_key_type pk =
         verifier_input_deserializer_tvm<scheme_type>::proving_key_process(
@@ -169,7 +171,9 @@ void create_proof(float minLat, float maxLat, float minLng, float maxLng, float 
 
     blueprint<field_type> bp;
     LocationCircuit circuit(bp);
+    cout << "Generating constraint system..." << endl;
     circuit.generate_r1cs_constraints(bp);
+    cout << "Generating witness..." << endl;
     circuit.generate_r1cs_witness(bp, minLat, maxLat, minLng, maxLng, posLat, posLng);
 
     cout << "Blueprint is satisfied: " << bp.is_satisfied() << endl;
@@ -180,18 +184,19 @@ void create_proof(float minLat, float maxLat, float minLng, float maxLng, float 
     cout << "Generating proof..." << endl;
     const scheme_type::proof_type proof = prove<scheme_type>(pk, bp.primary_input(), bp.auxiliary_input());
 
-    // save the proof
+    cout << "Saving proof to file..." << endl;
     vector<uint8_t> proof_byteblob = verifier_input_serializer_tvm<scheme_type>::process(proof);
     save_input(proof_byteblob, "proof");
 }
 
 bool verify_proof(float minLat, float maxLat, float minLng, float maxLng) {
-    // load proof
+    cout << "Loading proof from a file..." << endl;
     vector<uint8_t> proof_byteblob = load_input("proof");
     if (!proof_byteblob.size()) {
         cout << "Empty proof file!" << endl;
         return false;
     }
+    cout << "Deserialize proof..." << endl;
     nil::marshalling::status_type processingStatus = nil::marshalling::status_type::success;
     typename scheme_type::proof_type proof =
         verifier_input_deserializer_tvm<scheme_type>::proof_process(
@@ -199,12 +204,13 @@ bool verify_proof(float minLat, float maxLat, float minLng, float maxLng) {
             proof_byteblob.cend(),
             processingStatus);
 
-    // load verification key
+    cout << "Loading verification key from a file..." << endl;
     vector<uint8_t> verification_key_byteblob = load_input("verification.key");
     if (!verification_key_byteblob.size()) {
         cout << "Empty verification.key file!" << endl;
         return false;
     }
+    cout << "Deserialize verification key..." << endl;
     typename scheme_type::verification_key_type vk =
         verifier_input_deserializer_tvm<scheme_type>::verification_key_process(
             verification_key_byteblob.cbegin(),
