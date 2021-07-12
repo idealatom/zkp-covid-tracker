@@ -14,8 +14,10 @@ import { useStore } from '~/Store';
 import { addProof, setPending } from '~/state';
 import EventLayer from './EventLayer';
 import TestRectangle from './Rectangle';
+import { verify } from '~/tonclient';
 
 // const RESOLUTION = 20;
+const NETWORK = 'http://192.168.1.22';
 
 const latLngToString = (latlng) =>
   L.GeoJSON.latLngToCoords(latlng)
@@ -184,6 +186,7 @@ function MapBox() {
               size="large"
               disableElevation
               disabled={state.pending}
+              onClick={() => verify(NETWORK, state.lastProof)}
             >
               Verify
             </Button>

@@ -1048,6 +1048,23 @@
   resolved "https://registry.yarnpkg.com/@react-leaflet/core/-/core-1.1.0.tgz#389b2b373f1da4caeb3c4cf6f33d84561c58d504"
   integrity sha512-zFxMHgfjCi7khRVB7o7H8NoJl36NaezvfcaeEurVXx22lAGHFlTHiSuLOGA4tOiHj+Ep+Lo3uwUGJ3YM9BGkHg==
 
+"@tonclient/appkit@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@tonclient/appkit/-/appkit-0.2.0.tgz#8757a1f5d340b3e1e762ab89dcc13f9cd0934b4f"
+  integrity sha512-3YfwifLI1uv1HkNE5yRrIWzw8q3I7fh4diQnLWPq2VSJ6zEiRmgpBXf6rBPzBCfDmdVlRZKWsjW4Bu6IUs719g==
+  dependencies:
+    "@tonclient/core" "^1"
+
+"@tonclient/core@^1", "@tonclient/core@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@tonclient/core/-/core-1.19.0.tgz#291d6cbf792774f90db45f4726a62572acba4187"
+  integrity sha512-xW+CtJahZEhlD+l4ap1ilrzCedNouTfdTTA1bpvFv0FYTpUilJi138gZGq6MWY1kbfgqLG5VXAB2ClUeSqTQbw==
+
+"@tonclient/lib-web@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@tonclient/lib-web/-/lib-web-1.19.0.tgz#6c4147fbdb879099a8b57ea08c989faf10c5ca42"
+  integrity sha512-Bn+RPBchJHKIvsiVhOKEyMEtFfW93ko4cEPKfx1rrC6holvOgOnxMxUH0WuYjcW+Nmd5D2LC9EMX/+YAeyQfhQ==
+
 "@types/eslint-scope@^3.7.0":
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.0.tgz#4792816e31119ebd506902a482caec4951fabd86"
