@@ -1,4 +1,5 @@
 # zkp
+build/*
 zkp/build/*
 
 # backend
