@@ -11,12 +11,15 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import { calculateRectArea, download, fillWithRectangles } from '~/utils';
 import * as api from '~/api';
 import { useStore } from '~/Store';
-import { addProof, setPending } from '~/state';
+import {
+  addProof,
+  setGenerationPending,
+  setVerificationPending,
+  setVerificationResult,
+} from '~/state';
 import EventLayer from './EventLayer';
 import TestRectangle from './Rectangle';
-import { verify } from '~/tonclient';
-
-// const RESOLUTION = 20;
+import * as ton from '~/tonclient';
 
 const latLngToString = (latlng) =>
   L.GeoJSON.latLngToCoords(latlng)
@@ -91,12 +94,31 @@ function MapBox() {
   const [state, dispatch] = useStore();
   const circleRef = useRef();
 
-  const getProof = useCallback(() => {
-    dispatch(setPending());
-    api
-      .proof(target, boundsToParams(area))
-      .then((data) => dispatch(addProof(data)));
+  const getProof = useCallback(async () => {
+    dispatch(setGenerationPending(true));
+    try {
+      const data = await api.proof(target, boundsToParams(area));
+      dispatch(setGenerationPending(false));
+      dispatch(addProof(data));
+    } catch (e) {
+      dispatch(setGenerationPending(false));
+      throw e;
+    }
   }, [target, center, radius]);
+
+  const verifyProof = useCallback(async () => {
+    try {
+      dispatch(setVerificationResult(null));
+      dispatch(setVerificationPending(true));
+      const response = await ton.verify(state.lastProof.hex);
+      const result = response.decoded.output.value0;
+      dispatch(setVerificationPending(false));
+      dispatch(setVerificationResult(String(result)));
+    } catch (e) {
+      dispatch(setVerificationPending(false));
+      dispatch(setVerificationResult(null));
+    }
+  }, [state]);
 
   //   const getProof = useCallback(() => {
   //     dispatch(setPending());
@@ -146,10 +168,10 @@ function MapBox() {
           color="primary"
           size="large"
           disableElevation
-          disabled={!target}
+          disabled={!target || state.generationPending}
           onClick={() => getProof()}
         >
-          {state.pending ? (
+          {state.generationPending ? (
             <CircularProgress color="inherit" disableShrink />
           ) : (
             'Generate Proof'
@@ -173,7 +195,7 @@ function MapBox() {
               color="primary"
               size="large"
               disableElevation
-              disabled={state.pending}
+              disabled={state.generationPending}
               onClick={() => download('proof.hex', state.lastProof.hex)}
             >
               Download
@@ -184,11 +206,28 @@ function MapBox() {
               color="primary"
               size="large"
               disableElevation
-              disabled={state.pending}
-              onClick={() => verify(state.lastProof)}
+              disabled={state.verificationPending}
+              onClick={() => verifyProof()}
             >
-              Verify
+              {state.verificationPending ? (
+                <CircularProgress color="inherit" disableShrink />
+              ) : (
+                'Verify'
+              )}
             </Button>
+            {state.verificationResult !== null && (
+              <Typography
+                className={classes.title}
+                color={
+                  state.verificationResult === 'true'
+                    ? 'textSecondary'
+                    : 'error'
+                }
+                variant="h6"
+              >
+                Verification Result: {state.verificationResult}
+              </Typography>
+            )}
           </React.Fragment>
         )}
         <Typography className={classes.title} variant="h6">

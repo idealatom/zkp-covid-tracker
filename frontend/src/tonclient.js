@@ -1,15 +1,18 @@
 import { signerKeys, TonClient } from '@tonclient/core';
 import { libWeb } from '@tonclient/lib-web';
+
 const { Account } = require('@tonclient/appkit');
 
-// const NETWORK = 'http://192.168.1.22';
-// const NETWORK = 'http://live.freeton.nil.foundation/';
-const NETWORK = 'http://main3.ton.dev';
-// const ADDRESS =
-// '0:87884999045df1da979e80f4384c1b5c1dbeafb9acde746684c18ea582999987';
+const NETWORK = process.env.NETWORK;
+const ADDRESS = process.env.ADDRESS;
 
-const ADDRESS =
-  '0:e2bc9bff563553ece575f94d3ae70e885dedfee9fd440bce81c2ae12d78e7821';
+console.log('NETWORK', NETWORK);
+console.log('ADDRESS', ADDRESS);
+
+const TEST_KEYS = {
+  public: 'cf8e62e1ae3e742be97f3f5149cb5a3256706aa457fa1147c5eef4107887b4be',
+  secret: 'f8705d45332950cc07765a638390dc3a11784ce7409efa78c930f0738b8d491e',
+};
 
 TonClient.useBinaryLibrary(libWeb);
 
@@ -31,53 +34,46 @@ export async function withTonClient(network, fn) {
 
 export function verify(proof) {
   return withTonClient(NETWORK, async (client) => {
-    const keys = await client.crypto.generate_random_sign_keys();
+    // const keys = await client.crypto.generate_random_sign_keys();
+    const keys = TEST_KEYS;
     console.log('proof', proof);
     console.log('client', client);
     const signer = signerKeys(keys);
-    const account = new Account(HelloContract, {
+    const account = new Account(VerifyContract, {
       client,
       signer,
       address: ADDRESS,
     });
-    const smth = await account.run('touch');
-    console.log('smth', smth);
+    const result = await account.run('verify', { proof });
+    console.log('Result:', result);
+    return result;
   });
 }
 
-const HelloContract = {
+const VerifyContract = {
   abi: {
     'ABI version': 2,
-    header: ['time', 'expire'],
+    header: ['pubkey', 'time'],
     functions: [
+      {
+        name: 'verify',
+        inputs: [{ name: 'proof', type: 'bytes' }],
+        outputs: [{ name: 'value0', type: 'bool' }],
+      },
+      {
+        name: 'setVerificationKey',
+        inputs: [{ name: 'vkey', type: 'bytes' }],
+        outputs: [],
+      },
       {
         name: 'constructor',
         inputs: [],
         outputs: [],
       },
       {
-        name: 'renderHelloWorld',
+        name: 'm_vkey',
         inputs: [],
-        outputs: [{ name: 'value0', type: 'bytes' }],
-      },
-      {
-        name: 'touch',
-        inputs: [],
-        outputs: [],
-      },
-      {
-        name: 'sendValue',
-        inputs: [
-          { name: 'dest', type: 'address' },
-          { name: 'amount', type: 'uint128' },
-          { name: 'bounce', type: 'bool' },
-        ],
-        outputs: [],
-      },
-      {
-        name: 'timestamp',
-        inputs: [],
-        outputs: [{ name: 'timestamp', type: 'uint32' }],
+        outputs: [{ name: 'm_vkey', type: 'bytes' }],
       },
     ],
     data: [],
