@@ -35,15 +35,15 @@ void setup_keys(boost::filesystem::path pk_path, boost::filesystem::path vk_path
     cout << "Generating keypair..." << endl;
     scheme_type::keypair_type keypair = generate<scheme_type>(constraint_system);
 
-    cout << "Saving proving key to a file:" << pk_path<< endl;
+    cout << "Saving proving key to a file " << pk_path<< endl;
     save_proving_key(keypair.first, pk_path);
 
-    cout << "Saving verification key to a file:" << vk_path << endl;
+    cout << "Saving verification key to a file " << vk_path << endl;
     save_verification_key(keypair.second, vk_path);
 }
 
 void create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof_path, boost::filesystem::path pi_path,float minLat, float maxLat, float minLng, float maxLng, float posLat, float posLng) {
-    cout << "Loading proving key from a file:" << pk_path << endl;
+    cout << "Loading proving key from a file " << pk_path << endl;
     typename scheme_type::proving_key_type pk = load_proving_key(pk_path);
 
     blueprint<field_type> bp;
@@ -61,21 +61,21 @@ void create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof
     cout << "Generating proof..." << endl;
     const scheme_type::proof_type proof = prove<scheme_type>(pk, bp.primary_input(), bp.auxiliary_input());
 
-    cout << "Saving proof to file" << proof_path << endl;
+    cout << "Saving proof to file " << proof_path << endl;
     save_proof(proof, proof_path);
 
-    cout << "Saving primary input to file" << pi_path << endl;
+    cout << "Saving primary input to file " << pi_path << endl;
     save_primary_input(bp.primary_input(), pi_path);
 }
 
 bool verify_proof(boost::filesystem::path proof_path, boost::filesystem::path vk_path, boost::filesystem::path pi_path) {
-    cout << "Loading proof from a file" << proof_path << endl;
+    cout << "Loading proof from a file " << proof_path << endl;
     typename scheme_type::proof_type proof = load_proof(proof_path);
 
-    cout << "Loading primary input from a file" << pi_path << endl;
+    cout << "Loading primary input from a file " << pi_path << endl;
     r1cs_primary_input<field_type> input = load_primary_input(pi_path);
 
-    cout << "Loading verification key from a file" << vk_path << endl;
+    cout << "Loading verification key from a file " << vk_path << endl;
     typename scheme_type::verification_key_type vk = load_verification_key(vk_path);
 
     // verify
