@@ -67,12 +67,12 @@ const EventLayer = ({
   };
   return (
     <React.Fragment>
-      <Circle
+      {/*<Circle
         eventHandlers={circleEventHandlers}
         center={center}
         radius={radius}
         ref={circle}
-      />
+        />*/}
       <Rectangle eventHandlers={rectEventHandlers} bounds={area} />
       {target && <Marker position={target} />}
     </React.Fragment>
