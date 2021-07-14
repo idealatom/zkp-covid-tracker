@@ -7,10 +7,10 @@ export async function withTempDir(prefix, fn) {
   const cleanup = () => fs.rmdir(pwd, { recursive: true });
   try {
     const result = await fn(pwd);
-    // await cleanup();
+    await cleanup();
     return result;
   } catch (e) {
-    // await cleanup();
+    await cleanup();
     throw e;
   }
 }

@@ -1,28 +1,24 @@
 import fs from 'fs/promises';
 import cp from 'child_process';
 import util from 'util';
-import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { coerce, number, object, string, validate } from 'superstruct';
 import { withTempDir } from './utils.js';
 
-dotenv.config();
 const exec = util.promisify(cp.exec);
 const app = express();
 app.use(cors());
 app.use(helmet());
 
-const CLI_COMMAND = 'npx cli prove';
+const CLI_COMMAND = './assets/cli prove';
 const PROOF_FILENAME = 'proof';
 const INPUT_FILENAME = 'primary-input';
+const PK_PATH = './assets/proving.key';
 
-const provingKey = process.env.PROVING_KEY;
-
-// const NumberFromString = coerce(number(), string(), (s) => parseInt(s, 10));
 const FloatFromString = coerce(number(), string(), (s) =>
-  parseFloat(parseFloat(s).toFixed(2))
+  parseFloat(parseFloat(s).toFixed(6))
 );
 
 const Query = object({
@@ -42,22 +38,18 @@ const generateProof = async (coords) => {
   return await withTempDir('cli-', async (pwd) => {
     const proofPath = `${pwd}/${PROOF_FILENAME}`;
     const primaryInputPath = `${pwd}/${INPUT_FILENAME}`;
-    const provingKeyPath = `${pwd}/${INPUT_FILENAME}`;
     const paths = {
       'proof-path': proofPath,
       'primary-input-path': primaryInputPath,
-      'proving-key': provingKeyPath,
+      'proving-key': PK_PATH,
     };
-    await fs.writeFile(provingKeyPath, Buffer.from(provingKey, 'hex'));
     const command = `${CLI_COMMAND} ${argsFromObject({ ...coords, ...paths })}`;
     await fs.writeFile('cmd.log', command);
     const { stdout: log, stderr: errors } = await exec(command);
-    console.log('========================================');
-    console.log('log', log);
-    console.log('========================================');
-    console.log('errors', errors);
-    console.log('========================================');
+    console.log(log);
     console.log('Done.');
+    await fs.writeFile('output.log', log);
+    await fs.writeFile('errors.log', errors);
     const proof = await fs.readFile(proofPath);
     const input = await fs.readFile(primaryInputPath);
     const hex = `${proof.toString('hex')}${input.toString('hex')}`;
@@ -72,8 +64,18 @@ app.get('/proof/generate', async (req, res) => {
   if (error) {
     res.json({ success: false, errors: error.failures() });
   } else {
-    const proof = await generateProof(query);
-    res.json({ hex: proof });
+    try {
+      const proof = await generateProof(query);
+      res.json({ hex: proof });
+    } catch (e) {
+      console.log('Exit code:', e.code);
+      if (e.code === 200) {
+        console.log('Blueprint is not satisfied.');
+        res.status(406).json({ error: 'Blueprint is not satisfied' });
+      } else {
+        throw e;
+      }
+    }
   }
 });
 
