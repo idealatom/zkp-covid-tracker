@@ -115,10 +115,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     else if (string(argv[1]) == "setup") {
+        // Generate proving.key & verification.key
         setup_keys(pk_path, vk_path);
     } else if (string(argv[1]) == "prove") {
+        // Generate and  save proof and primary_input to file
         create_proof(pk_path, proof_path, pi_path, minLat, maxLat, minLng, maxLng, posLat, posLng);
     } else if (string(argv[1]) == "verify") {
+        // Check the status of the proof
         verify_proof(proof_path, pi_path, vk_path);
     }
     return 0;

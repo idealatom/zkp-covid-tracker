@@ -116,13 +116,37 @@ You will get to files as output 2 files
 
 5. Generate the proof: `bin/cli prove`
 
-> it will save proof and primary input ti file
+> Generate and  save proof and primary_input to file
 
 6. Verify: `bin/cli verify`
 
 In the end you will get: 
 
 > Verification status: 1
+
+
+The whole rocess looks like this:
+
+```
+ > bin/cli setup && bin/cli prove && bin/cli verify
+Blueprint size: 627
+Generating constraint system...
+Number of R1CS constraints: 633
+Generating keypair...
+Saving proving key to a file "proving.key"
+Saving verification key to a file "verification.key"
+Loading proving key from a file "proving.key"
+Generating constraint system...
+Generating witness...
+Blueprint is satisfied: 1
+Generating proof...
+Saving proof to file "proof"
+Saving primary input to file "primary_input"
+Loading proof from a file "proof"
+Loading primary input from a file "verification.key"
+Loading verification key from a file "primary_input"
+Verification status: 1
+```
 
 ### Whole project (with backend and frontend)
 
