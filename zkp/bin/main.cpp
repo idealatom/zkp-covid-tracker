@@ -99,10 +99,11 @@ int main(int argc, char *argv[]) {
     ("minLng,minLng", boost::program_options::value<float>(&minLng)->default_value(0))
     ("maxLng,maxLng", boost::program_options::value<float>(&maxLng)->default_value(0))
     ("posLat,posLat", boost::program_options::value<float>(&posLat)->default_value(0))
+    ("posLng,posLng", boost::program_options::value<float>(&posLng)->default_value(0))
     ("proving-key-path,pk", boost::program_options::value<boost::filesystem::path>(&pk_path)->default_value("proving.key"))
     ("verification-key-path,vk", boost::program_options::value<boost::filesystem::path>(&vk_path)->default_value("verification.key"))
     ("proof-path,p", boost::program_options::value<boost::filesystem::path>(&proof_path)->default_value("proof"))
-    ("primary-input-path,pi", boost::program_options::value<boost::filesystem::path>(&pi_path)->default_value("proving.key"));
+    ("primary-input-path,pi", boost::program_options::value<boost::filesystem::path>(&pi_path)->default_value("primary.input"));
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
