@@ -13,9 +13,6 @@ We care about privacy and allow some instances (like governance) to ensure that 
 To do so, we made a prototype: zkSNARK that accepts your coordinates (as personal input) and generates proof that you were in the range of `r`  meters from a specific area: coordinates.
 
 
-
-
-
 ### Steps
 
 1. **Gov** create a solidity contract with snark that can validate coordinates and get the answer, is the User placed in the specified area
@@ -93,7 +90,7 @@ Show UI to set location and allows to send it to generate a proof.
 
 
 
-### zkp side only
+### ZKP
 
 1. Clone:
 
@@ -107,9 +104,25 @@ Show UI to set location and allows to send it to generate a proof.
 
    `cmake .. && make cli`
    
-4. generate the proof:
-`bin/cli -x 10 -y 0 -r 100 --ax 20 --ay 30`
+4. Setup keys:
+   `bin/cli setup`
 
+```
+>Saving proving key to a file "proving.key"
+>Saving verification key to a file "verification.key"
+```
+You will get to files as output 2 files
+
+
+5. Generate the proof: `bin/cli prove`
+
+> it will save proof and primary input ti file
+
+6. Verify: `bin/cli verify`
+
+In the end you will get: 
+
+> Verification status: 1
 
 ### Whole project (with backend and frontend)
 
