@@ -10,16 +10,11 @@ import {
 import { MapContainer, TileLayer } from 'react-leaflet';
 import { calculateRectArea, download, fillWithRectangles } from '~/utils';
 import * as api from '~/api';
-import { useStore } from '~/Store';
-import {
-  addProof,
-  setGenerationPending,
-  setVerificationPending,
-  setVerificationResult,
-} from '~/state';
 import EventLayer from './EventLayer';
 import TestRectangle from './Rectangle';
 import * as ton from '~/tonclient';
+
+const cut = (s, n) => (s.length <= n ? s : `${s.slice(0, n)}...`);
 
 const latLngToString = (latlng) =>
   L.GeoJSON.latLngToCoords(latlng)
@@ -27,12 +22,18 @@ const latLngToString = (latlng) =>
     .map((n) => n.toFixed(6))
     .join(' ');
 
-const boundsToParams = (bounds) => ({
-  minLat: bounds.getWest(),
-  minLng: bounds.getNorth(),
-  maxLat: bounds.getEast(),
-  maxLng: bounds.getSouth(),
-});
+const boundsToParams = (bounds) => {
+  const west = bounds.getWest();
+  const north = bounds.getNorth();
+  const east = bounds.getEast();
+  const south = bounds.getSouth();
+  return {
+    minLng: Math.min(west, east),
+    maxLng: Math.max(west, east),
+    minLat: Math.min(north, south),
+    maxLat: Math.max(north, south),
+  };
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -86,44 +87,49 @@ function MapBox() {
   const [target, setTarget] = useState(null);
   const [center, setCenter] = useState(new L.LatLng(9.776018, 99.978224));
   const [radius, _setRadius] = useState(200);
+  const [provingPending, setProvingPending] = useState(false);
+  const [provingError, setProvingError] = useState('');
+  const [proof, setProof] = useState('');
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [verificationPending, setVerificationPending] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
   const [area, setArea] = useState(
     L.latLngBounds([9.7828, 99.976421], [9.781003, 99.979574])
   );
   const [resolution, setResolution] = useState(20);
   const [rectangles, setRectangles] = useState([]);
-  const [state, dispatch] = useStore();
   const circleRef = useRef();
 
   const getProof = useCallback(async () => {
-    dispatch(setGenerationPending(true));
+    setProvingError(null);
+    setVerificationError(null);
+    setProvingPending(true);
     try {
+      setProof('');
       const data = await api.proof(target, boundsToParams(area));
-      dispatch(setGenerationPending(false));
-      dispatch(addProof(data));
+      setProvingPending(false);
+      setProof(data.hex);
     } catch (e) {
-      dispatch(setGenerationPending(false));
-      throw e;
+      setProvingPending(false);
+      setProvingError(e.message);
     }
-  }, [target, center, radius]);
+  }, [target, area, center, radius]);
 
   const verifyProof = useCallback(async () => {
     try {
-      dispatch(setVerificationResult(null));
-      dispatch(setVerificationPending(true));
-      const response = await ton.verify(state.lastProof.hex);
+      setVerificationError(null);
+      setVerificationResult(null);
+      setVerificationPending(true);
+      const response = await ton.verify(proof);
       const result = response.decoded.output.value0;
-      dispatch(setVerificationPending(false));
-      dispatch(setVerificationResult(String(result)));
+      setVerificationPending(false);
+      setVerificationResult(String(result));
     } catch (e) {
-      dispatch(setVerificationPending(false));
-      dispatch(setVerificationResult(null));
+      setVerificationPending(false);
+      setVerificationResult(null);
+      setVerificationError(e.message);
     }
-  }, [state]);
-
-  //   const getProof = useCallback(() => {
-  //     dispatch(setPending());
-  //     api.proof(target, center, radius).then((data) => dispatch(addProof(data)));
-  //   }, [target, center, radius]);
+  }, [proof]);
 
   return (
     <div className={classes.root}>
@@ -156,80 +162,87 @@ function MapBox() {
           className={classes.field}
           variant="outlined"
           value={target ? latLngToString(target) : ''}
+          placeholder="Select a point on the map"
         />
-        <TextField
+        {/*<TextField
           className={classes.field}
           variant="outlined"
           value={center ? latLngToString(center) : ''}
-        />
+        />*/}
         <Button
           className={classes.button}
           variant="contained"
           color="primary"
           size="large"
           disableElevation
-          disabled={!target || state.generationPending}
+          disabled={!target || provingPending}
           onClick={() => getProof()}
         >
-          {state.generationPending ? (
+          {provingPending ? (
             <CircularProgress color="inherit" disableShrink />
           ) : (
             'Generate Proof'
           )}
         </Button>
-        {state.lastProof && (
-          <React.Fragment>
-            <Typography className={classes.title} variant="h6">
-              Verification
-            </Typography>
-            <TextField
-              className={classes.field}
-              variant="outlined"
-              value={state.lastProof.hex}
-              multiline
-              rows={6}
-            />
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="large"
-              disableElevation
-              disabled={state.generationPending}
-              onClick={() => download('proof.hex', state.lastProof.hex)}
-            >
-              Download
-            </Button>
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="large"
-              disableElevation
-              disabled={state.verificationPending}
-              onClick={() => verifyProof()}
-            >
-              {state.verificationPending ? (
-                <CircularProgress color="inherit" disableShrink />
-              ) : (
-                'Verify'
-              )}
-            </Button>
-            {state.verificationResult !== null && (
-              <Typography
-                className={classes.title}
-                color={
-                  state.verificationResult === 'true'
-                    ? 'textSecondary'
-                    : 'error'
-                }
-                variant="h6"
-              >
-                Verification Result: {state.verificationResult}
-              </Typography>
-            )}
-          </React.Fragment>
+        {!!provingError && (
+          <Typography className={classes.title} color="error" variant="h6">
+            Error: {provingError}
+          </Typography>
         )}
+        <React.Fragment>
+          <Typography className={classes.title} variant="h6">
+            Verification
+          </Typography>
+          <TextField
+            className={classes.field}
+            variant="outlined"
+            value={proof}
+            onChange={(event) => setProof(event.target.value)}
+            multiline
+            rows={6}
+          />
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            size="large"
+            disableElevation
+            disabled={!proof}
+            onClick={() => download('proof.hex', proof)}
+          >
+            Download
+          </Button>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            size="large"
+            disableElevation
+            disabled={!proof || verificationPending}
+            onClick={() => verifyProof()}
+          >
+            {verificationPending ? (
+              <CircularProgress color="inherit" disableShrink />
+            ) : (
+              'Verify'
+            )}
+          </Button>
+          {verificationResult !== null && (
+            <Typography
+              className={classes.title}
+              color={verificationResult === 'true' ? 'textSecondary' : 'error'}
+              variant="h6"
+            >
+              Verification Result: {verificationResult}
+            </Typography>
+          )}
+          {verificationResult === null && !!verificationError && (
+            <Typography className={classes.title} color="error" variant="h6">
+              Error: {cut(verificationError, 60)}
+            </Typography>
+          )}
+        </React.Fragment>
+        {/*
         <Typography className={classes.title} variant="h6">
           Test
         </Typography>
@@ -254,6 +267,7 @@ function MapBox() {
             Test
           </Button>
         </div>
+        */}
       </div>
     </div>
   );

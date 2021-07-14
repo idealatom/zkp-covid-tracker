@@ -1,14 +1,19 @@
 import React from 'react';
-import { useRoutes } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/styles';
 import theme from '~/theme';
-import routes from '~/routes';
 import useStyles from './styles';
+import MainLayout from './components/MainLayout';
+import ProofView from './components/ProofView';
 
 function App() {
   useStyles();
-  const routing = useRoutes(routes());
-  return <ThemeProvider theme={theme}>{routing}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <MainLayout>
+        <ProofView />
+      </MainLayout>
+    </ThemeProvider>
+  );
 }
 
 export default App;
