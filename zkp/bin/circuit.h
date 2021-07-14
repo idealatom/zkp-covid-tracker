@@ -56,11 +56,12 @@ class LocationCircuit {
         minLngLessOrEq.allocate(bp);
         maxLngLessOrEq.allocate(bp);
 
-        bp.set_input_sizes(1);
+
+        bp.set_input_sizes(5);
     }
 
     void generate_r1cs_constraints(blueprint<field_type> &bp) {
-        std::size_t comparison_n = 150;
+        std::size_t comparison_n = 50;
 
         // minLat <= posLat = 1
         minLatCmp.reset(new comparison<field_type>(bp, comparison_n, minLat, posLat, minLatLess, minLatLessOrEq));
