@@ -8,12 +8,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = (params) => {
-  const env = params.development ? 'development' : 'production';
   clear();
-  console.log(chalk.greenBright(`Creating ${env} build...\n`));
+  console.log(chalk.greenBright(`Creating build...\n`));
 
   const distPath = path.resolve(__dirname, 'dist');
-  const environmentPath = path.resolve(__dirname, `.env.${env}`);
   const publicPath = path.resolve(__dirname, 'public');
   const sourcePath = path.resolve(__dirname, 'src');
 
@@ -59,7 +57,7 @@ module.exports = (params) => {
     plugins: [
       new webpack.ProvidePlugin({ process: 'process/browser' }),
       new CopyWebpackPlugin([{ from: publicPath, ignore: ['index.html'] }]),
-      new DotenvWebpackPlugin({ path: environmentPath, ignoreStub: true }),
+      new DotenvWebpackPlugin({ path: '.env', ignoreStub: true }),
       new FriendlyErrorsWebpackPlugin(),
       new HtmlWebpackPlugin({
         template: path.resolve(publicPath, 'index.html'),

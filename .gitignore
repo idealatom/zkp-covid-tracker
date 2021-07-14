@@ -4,12 +4,11 @@ zkp/build/*
 
 # backend
 backend/node_modules
+backend/*.log
 
 # frontend
 frontend/dist
 frontend/node_modules
-frontend/.env.development
-frontend/.env.production
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
