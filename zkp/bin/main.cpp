@@ -22,7 +22,10 @@ using namespace nil::crypto3::zk::components;
 using namespace nil::crypto3::zk::snark;
 
 
-void setup_keys(boost::filesystem::path pk_path, boost::filesystem::path vk_path) {
+ushort INVALID_PROOF_RETURN_CODE = 200;
+
+
+int setup_keys(boost::filesystem::path pk_path, boost::filesystem::path vk_path) {
     blueprint<field_type> bp;
     LocationCircuit circuit(bp);
     circuit.generate_r1cs_constraints(bp);
@@ -40,9 +43,11 @@ void setup_keys(boost::filesystem::path pk_path, boost::filesystem::path vk_path
 
     cout << "Saving verification key to a file " << vk_path << endl;
     save_verification_key(keypair.second, vk_path);
+
+    return 0;
 }
 
-void create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof_path, boost::filesystem::path pi_path,float minLat, float maxLat, float minLng, float maxLng, float posLat, float posLng) {
+int create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof_path, boost::filesystem::path pi_path,float minLat, float maxLat, float minLng, float maxLng, float posLat, float posLng) {
     cout << "Loading proving key from a file " << pk_path << endl;
     typename scheme_type::proving_key_type pk = load_proving_key(pk_path);
 
@@ -55,7 +60,7 @@ void create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof
 
     cout << "Blueprint is satisfied: " << bp.is_satisfied() << endl;
     if (!bp.is_satisfied()) {
-        return;
+        return INVALID_PROOF_RETURN_CODE;
     }
 
     cout << "Generating proof..." << endl;
@@ -66,9 +71,10 @@ void create_proof(boost::filesystem::path pk_path, boost::filesystem::path proof
 
     cout << "Saving primary input to file " << pi_path << endl;
     save_primary_input(bp.primary_input(), pi_path);
+    return 0;
 }
 
-bool verify_proof(boost::filesystem::path proof_path, boost::filesystem::path vk_path, boost::filesystem::path pi_path) {
+int verify_proof(boost::filesystem::path proof_path, boost::filesystem::path vk_path, boost::filesystem::path pi_path) {
     cout << "Loading proof from a file " << proof_path << endl;
     typename scheme_type::proof_type proof = load_proof(proof_path);
 
@@ -83,7 +89,7 @@ bool verify_proof(boost::filesystem::path proof_path, boost::filesystem::path vk
     const bool verified = verify<basic_proof_system>(vk, input, proof);
     cout << "Verification status: " << verified << endl;
 
-    return verified;
+    return verified ? 0 : INVALID_PROOF_RETURN_CODE;
 }
 
 int main(int argc, char *argv[]) {
@@ -99,10 +105,11 @@ int main(int argc, char *argv[]) {
     ("minLng,minLng", boost::program_options::value<float>(&minLng)->default_value(0))
     ("maxLng,maxLng", boost::program_options::value<float>(&maxLng)->default_value(0))
     ("posLat,posLat", boost::program_options::value<float>(&posLat)->default_value(0))
+    ("posLng,posLng", boost::program_options::value<float>(&posLng)->default_value(0))
     ("proving-key-path,pk", boost::program_options::value<boost::filesystem::path>(&pk_path)->default_value("proving.key"))
     ("verification-key-path,vk", boost::program_options::value<boost::filesystem::path>(&vk_path)->default_value("verification.key"))
     ("proof-path,p", boost::program_options::value<boost::filesystem::path>(&proof_path)->default_value("proof"))
-    ("primary-input-path,pi", boost::program_options::value<boost::filesystem::path>(&pi_path)->default_value("primary_input"));
+    ("primary-input-path,pi", boost::program_options::value<boost::filesystem::path>(&pi_path)->default_value("primary.input"));
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
@@ -116,13 +123,14 @@ int main(int argc, char *argv[]) {
     }
     else if (string(argv[1]) == "setup") {
         // Generate proving.key & verification.key
-        setup_keys(pk_path, vk_path);
+        return setup_keys(pk_path, vk_path);
     } else if (string(argv[1]) == "prove") {
         // Generate and  save proof and primary_input to file
-        create_proof(pk_path, proof_path, pi_path, minLat, maxLat, minLng, maxLng, posLat, posLng);
+        return create_proof(pk_path, proof_path, pi_path, minLat, maxLat, minLng, maxLng, posLat, posLng);
     } else if (string(argv[1]) == "verify") {
         // Check the status of the proof
-        verify_proof(proof_path, pi_path, vk_path);
+        return verify_proof(proof_path, pi_path, vk_path);
     }
+
     return 0;
 }
