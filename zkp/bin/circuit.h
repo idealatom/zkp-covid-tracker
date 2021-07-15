@@ -84,7 +84,6 @@ class LocationCircuit {
         // bp.add_r1cs_constraint(r1cs_constraint<field_type>(1, 1, resultCmpZero));
 
         bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLatLessOrEq + maxLatLessOrEq + minLngLessOrEq + maxLngLessOrEq, 1, resultCmpTotal));
-        // bp.add_r1cs_constraint(r1cs_constraint<field_type>(4, 1, resultCmpTotal));
 
         // resultCmp.reset(new comparison<field_type>(bp, comparison_n, resultCmpZero, resultCmpTotal, resultCmpLess, resultCmpLessOrEq));
         // resultCmp.get()->generate_r1cs_constraints();
@@ -106,7 +105,7 @@ class LocationCircuit {
         maxLatCmp.get()->generate_r1cs_witness();
         minLngCmp.get()->generate_r1cs_witness();
         maxLngCmp.get()->generate_r1cs_witness();
-        resultCmp.get()->generate_r1cs_witness();
+        // resultCmp.get()->generate_r1cs_witness();
 
         cout << "Lattiture range: [" << bp.val(minLat).data << ", " << bp.val(maxLat).data <<  "]" << endl;
         cout << "Longitude range: [" << bp.val(minLng).data << ", " << bp.val(maxLng).data <<  "]" << endl;
