@@ -1,16 +1,18 @@
 # Privacy-awarded Covid-19 tracker
 
-This repo contains  a POC project made for the TON contest:  [#18 Groth16 zkSNARK Proof Verification Use Cases](https://devex.gov.freeton.org/proposal?proposalAddress=0%3Ae6b65075478e7d412fdb0870452f30dfa8bf51272e28a3167abc5c5df6fd051d)
+This repo contains a proof of concept project made for the TON contest:  [#18 Groth16 zkSNARK Proof Verification Use Cases](https://devex.gov.freeton.org/proposal?proposalAddress=0%3Ae6b65075478e7d412fdb0870452f30dfa8bf51272e28a3167abc5c5df6fd051d).
 
-
-
-We care about privacy and allow some instances (like governance) to ensure that person wasn't placed in infected by covid-19 area, by generation proof that helps to check, that User out of the specified area.
+We care about privacy and allow some instances (like governance) to ensure that a person wasn't be in an infected by COVID-19 area, by generation proof that proves User is outside of the specified area. So Governance can control spreading of a virus without tracking an exact location of all Users.
 
 ## Idea
 
 **The idea is to prove that you weren't in some specific area on the map without revealing your actual location.**
 
-To do so, we made a prototype: zkSNARK that accepts your coordinates (as personal input) and generates proof that you were in the range of `r`  meters from a specific area: coordinates.
+To do so, a prototype was made: zkSNARK that accepts your coordinates (as personal input) and generates proof that they are outside of an area defined by min and max coordinates (as auxiliary input).
+
+## Demonstration
+
+![demonstration](demonstration.gif)
 
 
 ### Steps
@@ -25,131 +27,118 @@ After this:
 
 ## Assumptions
 
-
-
 1. Let assume that we have a particular device that can securely generate, encrypt and transfer your coordinates via the encrypted protocol.
 
 Then you can run this code on this device to generate proof that the owner of this device is based in some specific area (safe place).
 
-
-
-2. Let's assume that the world is flat - otherwise, we have to use [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula) that possible, but not in timeframe of the contest :) 
-
-3. Personal ID and Time assumption: we can check on the blockchain part to make zksnark simple as possible. So let's assume that a personal tracker can log it into a smart contract on its side.
-
+2. Personal ID and Time assumption: we can check on the blockchain part to make zksnark simple as possible. So let's assume that a personal tracker can log it into a smart contract on its side.
 
 
 ## Implementation:
 
-
-
-We did a zksnark to set a radius and coordinates and made a zkSNARK that calculate the distance by a simple formula:
-
-`distance = √ a2 + b2 `
-
-
-
-calculated as follwoing:
-
-```c++
-				bp.val(deltaX) = bp.val(userX) - bp.val(areaX);
-        bp.val(deltaY) = bp.val(userY) - bp.val(areaY);
-        bp.val(deltaX_square) = bp.val(deltaX) * bp.val(deltaX);
-        bp.val(deltaY_square) = bp.val(deltaY) * bp.val(deltaY);
-        bp.val(deltaSum) = bp.val(deltaX_square) + bp.val(deltaY_square);
-        bp.val(radius_square) = bp.val(radius) * bp.val(radius);
+A SNARK checks that at least one of this constrains is true, using a comparison components from a blueprint library:
 ```
-
-
+userLatitude <= minLatitude
+maxLatitude <= userLatitude
+userLongtitude <= minLongtitude
+maxLongtitude <= userLongtitude
+```
 
 ## Architecture:
 
-### ZKP (blueprint):
+### ZKP (blueprint)
 
-Generates proof by input coordinates
+Generates proof by given user coordinates and min/max coordinates of a restricted area.
 
 ### TON Blockchain (smart contract)
 
-Validates time, id, and tin verification for zkp part on-chain.
+Validates proof on-chain using VERGRTH16 TVM instruction.
 
+### Demo web app
 
+This web application interactivly generate and validate proofs for a given user location and restricted area coordinates.
+* Proofs are generating by a node backend with compiled blueprint cli tool and pregenerated proving key;
+* Proofs are validating on chain using `verification.sol` smart contract from a repo, deployed at `0:e13752c9dc987ca1e33a012511409b273ea06af68e799c24f3cee861fc9815aa` address at NIL test network;
+* A verification key is stored in the smart contract, and can be changed using `setVerificationKey` method
 
-### Backend
+## How to build and use:
 
-Generates proof for the User (could be packed into the portable device in the future)
-
-
-
-### Frontend
-
-Show UI to set location and allows to send it to generate a proof.
-
-
-
-## How to build:
-
-
-
-### ZKP
+### ZKP cli tool
 
 1. Clone:
-
-   `git clone  https://github.com/idealatom/ton-zkp-contest --recurse-submodules`
-
-2. go to zkp directory:
-
-   `cd ton-zkp-contest/zkp && mkdir build && cd build `
-
-3. build
-
-   `cmake .. && make cli`
-   
-4. Setup keys:
-   `bin/cli setup`
-
 ```
->Saving proving key to a file "proving.key"
->Saving verification key to a file "verification.key"
+git clone  https://github.com/idealatom/ton-zkp-contest --recursive
 ```
-You will get to files as output 2 files
 
-
-5. Generate the proof: `bin/cli prove`
-
-> Generate and  save proof and primary_input to file
-
-6. Verify: `bin/cli verify`
-
-In the end you will get: 
-
-> Verification status: 1
-
-
-The whole rocess looks like this:
-
+2. Go to build directory:
 ```
- > bin/cli setup && bin/cli prove && bin/cli verify
-Blueprint size: 627
+cd ton-zkp-contest/zkp && mkdir build && cd build
+```
+
+3. Build
+```
+cmake .. && make cli
+```
+
+4. Generate proving and verification keys:
+```
+> bin/cli setup
+Blueprint size: 284
 Generating constraint system...
-Number of R1CS constraints: 633
+Number of R1CS constraints: 287
 Generating keypair...
 Saving proving key to a file "proving.key"
 Saving verification key to a file "verification.key"
+```
+
+5. Generate the proof for given coordinates:
+```
+> bin/cli prove --posLat 13.686019 --minLat 13.673677 --maxLat 13.697777 --posLng 100.564981 --minLng 100.523192 --maxLng 100.551189
 Loading proving key from a file "proving.key"
 Generating constraint system...
 Generating witness...
 Blueprint is satisfied: 1
 Generating proof...
 Saving proof to file "proof"
-Saving primary input to file "primary_input"
+Saving primary input to file "primary.input"
+```
+
+6. Verify proof file using saved primary input and verification key:
+```
+> bin/cli verify
 Loading proof from a file "proof"
 Loading primary input from a file "verification.key"
-Loading verification key from a file "primary_input"
+Loading verification key from a file "primary.input"
 Verification status: 1
 ```
 
-### Whole project (with backend and frontend)
+### Web app backend
 
-The whole project packed in Docker, so you can start it by command:
+```
+> cd /backend/
+> npm install
+> npm run dev
+```
 
-`//TBD`
+### Web app frontend
+
+```
+> cd /frontend/
+> yarn install
+> yarn start
+```
+Next open [localhost:8000](localhost:8000) in your browser.
+
+
+## Testing
+
+Build tests:
+```
+> cd /zkp/test/
+> cmake .. -DBUILD_TESTS=1
+> make circuit_test
+```
+Run tests
+```
+> test/circuit_test
+```
