@@ -57,7 +57,7 @@ class LocationCircuit {
         minLngLessOrEq.allocate(bp);
         maxLngLessOrEq.allocate(bp);
 
-        // resultCmpZero.allocate(bp);
+        resultCmpZero.allocate(bp);
         resultCmpTotal.allocate(bp);
         resultCmpLess.allocate(bp);
         resultCmpLessOrEq.allocate(bp);
@@ -81,14 +81,13 @@ class LocationCircuit {
         maxLngCmp.get()->generate_r1cs_constraints();
 
         // (posLat <= minLat || maxLat <= posLat || posLng <= minLng || maxLng <= posLng) = true
-        // bp.add_r1cs_constraint(r1cs_constraint<field_type>(1, 1, resultCmpZero));
 
         bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLatLessOrEq + maxLatLessOrEq + minLngLessOrEq + maxLngLessOrEq, 1, resultCmpTotal));
 
-        // resultCmp.reset(new comparison<field_type>(bp, comparison_n, resultCmpZero, resultCmpTotal, resultCmpLess, resultCmpLessOrEq));
-        // resultCmp.get()->generate_r1cs_constraints();
+        resultCmp.reset(new comparison<field_type>(bp, comparison_n, resultCmpZero, resultCmpTotal, resultCmpLess, resultCmpLessOrEq));
+        resultCmp.get()->generate_r1cs_constraints();
 
-        bp.add_r1cs_constraint(r1cs_constraint<field_type>(resultCmpTotal, 1, out));
+        bp.add_r1cs_constraint(r1cs_constraint<field_type>(resultCmpLess, 1, out));
     }
 
     void generate_r1cs_witness(blueprint<field_type> &bp, float minLat_, float maxLat_, float minLng_, float maxLng_, float posLat_, float posLng_) {
@@ -101,29 +100,34 @@ class LocationCircuit {
 
         bp.val(out) = 1;
 
+        bp.val(resultCmpZero) = 0;
+
         minLatCmp.get()->generate_r1cs_witness();
         maxLatCmp.get()->generate_r1cs_witness();
         minLngCmp.get()->generate_r1cs_witness();
         maxLngCmp.get()->generate_r1cs_witness();
-        // resultCmp.get()->generate_r1cs_witness();
 
-        cout << "Lattiture range: [" << bp.val(minLat).data << ", " << bp.val(maxLat).data <<  "]" << endl;
-        cout << "Longitude range: [" << bp.val(minLng).data << ", " << bp.val(maxLng).data <<  "]" << endl;
-        cout << "Position coords: (" << bp.val(posLat).data << ", " << bp.val(posLng).data <<  ")" << endl;
+        bp.val(resultCmpTotal) = bp.val(minLatLessOrEq) + bp.val(maxLatLessOrEq) + bp.val(minLngLessOrEq) + bp.val(maxLngLessOrEq);
 
-        cout << "minLatLess = " << bp.val(minLatLess).data << endl;
-        cout << "maxLatLess = " << bp.val(maxLatLess).data << endl;
-        cout << "minLngLess = " << bp.val(minLngLess).data << endl;
-        cout << "maxLngLess = " << bp.val(maxLngLess).data << endl;
+        resultCmp.get()->generate_r1cs_witness();
 
-        cout << "minLatLessOrEq = " << bp.val(minLatLessOrEq).data << endl;
-        cout << "maxLatLessOrEq = " << bp.val(maxLatLessOrEq).data << endl;
-        cout << "minLngLessOrEq = " << bp.val(minLngLessOrEq).data << endl;
-        cout << "maxLngLessOrEq = " << bp.val(maxLngLessOrEq).data << endl;
+        // cout << "Lattiture range: [" << bp.val(minLat).data << ", " << bp.val(maxLat).data <<  "]" << endl;
+        // cout << "Longitude range: [" << bp.val(minLng).data << ", " << bp.val(maxLng).data <<  "]" << endl;
+        // cout << "Position coords: (" << bp.val(posLat).data << ", " << bp.val(posLng).data <<  ")" << endl;
+
+        // cout << "minLatLess = " << bp.val(minLatLess).data << endl;
+        // cout << "maxLatLess = " << bp.val(maxLatLess).data << endl;
+        // cout << "minLngLess = " << bp.val(minLngLess).data << endl;
+        // cout << "maxLngLess = " << bp.val(maxLngLess).data << endl;
+
+        // cout << "minLatLessOrEq = " << bp.val(minLatLessOrEq).data << endl;
+        // cout << "maxLatLessOrEq = " << bp.val(maxLatLessOrEq).data << endl;
+        // cout << "minLngLessOrEq = " << bp.val(minLngLessOrEq).data << endl;
+        // cout << "maxLngLessOrEq = " << bp.val(maxLngLessOrEq).data << endl;
 
         // cout << "resultCmpZero = " << bp.val(resultCmpZero).data << endl;
-        cout << "resultCmpTotal = " << bp.val(resultCmpTotal).data << endl;
-        cout << "resultCmpLess = " << bp.val(resultCmpLess).data << endl;
-        cout << "resultCmpLessOrEq = " << bp.val(resultCmpLessOrEq).data << endl;
+        // cout << "resultCmpTotal = " << bp.val(resultCmpTotal).data << endl;
+        // cout << "resultCmpLess = " << bp.val(resultCmpLess).data << endl;
+        // cout << "resultCmpLessOrEq = " << bp.val(resultCmpLessOrEq).data << endl;
     }
 };
