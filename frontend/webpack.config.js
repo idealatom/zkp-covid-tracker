@@ -48,7 +48,6 @@ module.exports = (params) => {
 
     devServer: {
       historyApiFallback: true,
-      // open: true,
       port: process.env.PORT || 3000,
       stats: 'none',
       quiet: true,
@@ -56,6 +55,18 @@ module.exports = (params) => {
 
     plugins: [
       new webpack.ProvidePlugin({ process: 'process/browser' }),
+      new CopyWebpackPlugin([
+        {
+          from: path.resolve(
+            __dirname,
+            'node_modules',
+            '@tonclient',
+            'lib-web',
+            'tonclient.wasm'
+          ),
+        },
+      ]),
+
       new CopyWebpackPlugin([{ from: publicPath, ignore: ['index.html'] }]),
       new DotenvWebpackPlugin({ path: '.env', ignoreStub: true }),
       new FriendlyErrorsWebpackPlugin(),
