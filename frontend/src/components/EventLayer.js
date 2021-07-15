@@ -73,7 +73,7 @@ const EventLayer = ({
         radius={radius}
         ref={circle}
         />*/}
-      <Rectangle eventHandlers={rectEventHandlers} bounds={area} />
+      <Rectangle eventHandlers={rectEventHandlers} bounds={area} color="red"/>
       {target && <Marker position={target} />}
     </React.Fragment>
   );

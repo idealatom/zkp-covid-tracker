@@ -83,9 +83,9 @@ const useStyles = makeStyles((theme) => ({
 
 function MapBox() {
   const classes = useStyles();
-  const [position, _setPosition] = useState(new L.LatLng(9.776018, 99.978224));
+  const [position, _setPosition] = useState(new L.LatLng(13.687187, 100.536428));
   const [target, setTarget] = useState(null);
-  const [center, setCenter] = useState(new L.LatLng(9.776018, 99.978224));
+  const [center, setCenter] = useState(new L.LatLng(13.687187, 100.536428));
   const [radius, _setRadius] = useState(200);
   const [provingPending, setProvingPending] = useState(false);
   const [provingError, setProvingError] = useState('');
@@ -94,7 +94,7 @@ function MapBox() {
   const [verificationPending, setVerificationPending] = useState(false);
   const [verificationError, setVerificationError] = useState('');
   const [area, setArea] = useState(
-    L.latLngBounds([9.7828, 99.976421], [9.781003, 99.979574])
+    L.latLngBounds([13.697777, 100.523192], [13.673677, 100.551189])
   );
   const [resolution, setResolution] = useState(20);
   const [rectangles, setRectangles] = useState([]);
@@ -133,7 +133,7 @@ function MapBox() {
 
   return (
     <div className={classes.root}>
-      <MapContainer center={position} zoom={16} className={classes.map}>
+      <MapContainer center={position} zoom={12} className={classes.map}>
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -156,7 +156,7 @@ function MapBox() {
       </MapContainer>
       <div className={classes.form}>
         <Typography className={classes.title} variant="h6">
-          Proof
+          User coordinates:
         </Typography>
         <TextField
           className={classes.field}
@@ -191,7 +191,7 @@ function MapBox() {
         )}
         <React.Fragment>
           <Typography className={classes.title} variant="h6">
-            Verification
+            Proof (HEX):
           </Typography>
           <TextField
             className={classes.field}
