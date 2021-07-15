@@ -56,32 +56,29 @@ class LocationCircuit {
         minLngLessOrEq.allocate(bp);
         maxLngLessOrEq.allocate(bp);
 
-
         bp.set_input_sizes(5);
     }
 
     void generate_r1cs_constraints(blueprint<field_type> &bp) {
         std::size_t comparison_n = 50;
 
-        // minLat <= posLat = 1
-        minLatCmp.reset(new comparison<field_type>(bp, comparison_n, minLat, posLat, minLatLess, minLatLessOrEq));
+        minLatCmp.reset(new comparison<field_type>(bp, comparison_n, posLat, minLat, minLatLess, minLatLessOrEq));
         minLatCmp.get()->generate_r1cs_constraints();
-        bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLatLessOrEq, 1, value_type::one()));
 
-        // maxLat >= posLat = 1
-        maxLatCmp.reset(new comparison<field_type>(bp, comparison_n, posLat, maxLat, maxLatLess, maxLatLessOrEq));
+        maxLatCmp.reset(new comparison<field_type>(bp, comparison_n, maxLat, posLat, maxLatLess, maxLatLessOrEq));
         maxLatCmp.get()->generate_r1cs_constraints();
-        bp.add_r1cs_constraint(r1cs_constraint<field_type>(maxLatLessOrEq, 1, value_type::one()));
 
-        // minLng <= posLng = 1
-        minLngCmp.reset(new comparison<field_type>(bp, comparison_n, minLng, posLng, minLngLess, minLngLessOrEq));
+        // (posLat <= minLat) || maxLat <= posLat = 1
+        bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLatLessOrEq + maxLatLessOrEq, 1, value_type::one()));
+
+        minLngCmp.reset(new comparison<field_type>(bp, comparison_n, posLng, minLng, minLngLess, minLngLessOrEq));
         minLngCmp.get()->generate_r1cs_constraints();
-        bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLngLessOrEq, 1, value_type::one()));
 
-        // maxLng >= posLng = 1
-        maxLngCmp.reset(new comparison<field_type>(bp, comparison_n, posLng, maxLng, maxLngLess, maxLngLessOrEq));
+        maxLngCmp.reset(new comparison<field_type>(bp, comparison_n, maxLng, posLng, maxLngLess, maxLngLessOrEq));
         maxLngCmp.get()->generate_r1cs_constraints();
-        bp.add_r1cs_constraint(r1cs_constraint<field_type>(maxLngLessOrEq, 1, value_type::one()));
+
+        // (posLng <= minLng) || maxLng <= posLng = 1
+        bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLngLessOrEq + maxLngLessOrEq, 1, value_type::one()));
 
         bp.add_r1cs_constraint(r1cs_constraint<field_type>(minLatLessOrEq + maxLatLessOrEq + minLngLessOrEq + maxLngLessOrEq, 1, out));
     }
@@ -94,7 +91,7 @@ class LocationCircuit {
         bp.val(posLat) = convert_input(posLat_);
         bp.val(posLng) = convert_input(posLng_);
 
-        bp.val(out) = 4;
+        bp.val(out) = 2;
 
         minLatCmp.get()->generate_r1cs_witness();
         maxLatCmp.get()->generate_r1cs_witness();
