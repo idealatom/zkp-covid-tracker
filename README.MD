@@ -86,12 +86,12 @@ address at Nil's test network;
 
 1. Clone:
 ```
-git clone  https://github.com/idealatom/ton-zkp-contest --recursive
+git clone  https://github.com/idealatom/zkp-covid-tracker --recursive
 ```
 
 2. Go to build directory:
 ```
-cd ton-zkp-contest/zkp && mkdir build && cd build
+cd zkp-covid-tracker/zkp && mkdir build && cd build
 ```
 
 3. Build
